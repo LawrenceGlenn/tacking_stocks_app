@@ -1,6 +1,6 @@
 $('document').ready(function() {
 var chart = $('.stock_info').data('stock').chart;
-//alert($('.stock_info').data('stock').chart[0].date);
+//alert($('.stock_info').data('stock').chart[0]);
 drawChart(parseData(chart));
 });
 
@@ -10,7 +10,10 @@ function parseData(chart) {
       arr.push(
          {
             date: new Date(chart[i].date),  //convert string to number
-            close: +chart[i].close //convert string to number
+            close: +chart[i].close, //convert string to number
+            open: +chart[i].open, //convert string to number
+            low: +chart[i].low, //convert string to number
+            high: +chart[i].high //convert string to number
          });
    }
    return arr;
@@ -36,11 +39,28 @@ function drawChart(chart) {
   var y = d3.scaleLinear().rangeRound([height, 0]);
 
   x.domain(d3.extent(chart, function(d) { return d.date }));
-  y.domain(d3.extent(chart, function(d) { return d.close }));
+  y.domain(d3.extent(
+    [].concat(chart.map(function (d) {return d.open}))
+    .concat(chart.map(function (d) {return d.close}))
+    .concat(chart.map(function (d) {return d.low}))
+    .concat(chart.map(function (d) {return d.high}))
+    ));
 
-  var line = d3.line()
+  var closeLine = d3.line()
     .x(function(d) { return x(d.date)})
     .y(function(d) { return y(d.close)})
+
+  var openLine = d3.line()
+    .x(function(d) { return x(d.date)})
+    .y(function(d) { return y(d.open)})
+
+  var lowLine = d3.line()
+    .x(function(d) { return x(d.date)})
+    .y(function(d) { return y(d.low)})
+
+  var highLine = d3.line()
+    .x(function(d) { return x(d.date)})
+    .y(function(d) { return y(d.high)})
 
 //Add the X axis
 g.append("g")
@@ -67,7 +87,34 @@ g.append("g")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
     .attr("stroke-width", 1.5)
-    .attr("d", line);
+    .attr("d", closeLine);
+
+  g.append("path")
+    .datum(chart)
+    .attr("fill", "none")
+    .attr("stroke", "gray")
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", 1.5)
+    .attr("d", openLine);
+
+  g.append("path")
+    .datum(chart)
+    .attr("fill", "none")
+    .attr("stroke", "red")
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", 1.5)
+    .attr("d", lowLine);
+
+  g.append("path")
+    .datum(chart)
+    .attr("fill", "none")
+    .attr("stroke", "green")
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", 1.5)
+    .attr("d", highLine);
 
 
   }
