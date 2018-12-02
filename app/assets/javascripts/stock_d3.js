@@ -18,8 +18,9 @@ function parseData(chart) {
 
 function drawChart(chart) {
 
-  var svgWidth = 1000, svgHeight = 400;
-  var margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  //set dimensions for the canvis the graph will be on
+  var svgWidth = 600, svgHeight = 400;
+  var margin = { top: 20, right: 20, bottom: 50, left: 50 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
 
@@ -30,8 +31,8 @@ function drawChart(chart) {
   var g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+//set the range of the graph
   var x = d3.scaleTime().rangeRound([0, width]);
-
   var y = d3.scaleLinear().rangeRound([height, 0]);
 
   x.domain(d3.extent(chart, function(d) { return d.date }));
@@ -41,19 +42,21 @@ function drawChart(chart) {
     .x(function(d) { return x(d.date)})
     .y(function(d) { return y(d.close)})
 
+//Add the X axis
 g.append("g")
    .attr("transform", "translate(0," + height + ")")
    .call(d3.axisBottom(x))
-   .select(".domain")
-   .remove();
+    .selectAll("text")  
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-65)");
 
+//Add the Y axis
   g.append("g")
     .call(d3.axisLeft(y))
     .append("text")
     .attr("fill", "#000")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 6)
-    .attr("dy", "0.71em")
     .attr("text-anchor", "end")
     .text("Price ($)");
 
