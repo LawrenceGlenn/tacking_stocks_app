@@ -2,8 +2,10 @@
 <%= content_tag :div, class: "stock_info", data: {stock: @stocks} do %>
 <% end %>
 
-<%= @stocks.chart.first.open %>
+<%= @stocks.chart.first.date.to_s + " " + @stocks.chart.first.label.chomp(" PM").chomp(" AM") %>
+
 
 <body>
   <svg></svg>
+  <div></div>
 </body>
