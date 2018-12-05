@@ -31,7 +31,7 @@ function drawStockChart(data) {
 
   //set dimensions for the canvis the graph will be on
   var svgWidth = 600, svgHeight = 400;
-  var margin = { top: 20, right: 20, bottom: 50, left: 50 };
+  var margin = { top: 20, right: 20, bottom: 60, left: 50 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
 
@@ -99,7 +99,7 @@ g.append("g")
     .attr("stroke", "steelblue")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
-    .attr("stroke-width", 1.5)
+    .attr("stroke-width", 2.5)
     .attr("d", closeLine);
 
   g.append("path")
@@ -109,7 +109,7 @@ g.append("g")
     .attr("stroke", "gray")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
-    .attr("stroke-width", 1.5)
+    .attr("stroke-width", 2.5)
     .attr("d", openLine);
 
   g.append("path")
@@ -119,7 +119,7 @@ g.append("g")
     .attr("stroke", "red")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
-    .attr("stroke-width", 1.5)
+    .attr("stroke-width", 2.5)
     .attr("d", lowLine);
 
   g.append("path")
@@ -129,23 +129,25 @@ g.append("g")
     .attr("stroke", "green")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
-    .attr("stroke-width", 1.5)
+    .attr("stroke-width", 2.5)
     .attr("d", highLine);
 
 
-    highlightOnHover(svg, svg.selectAll(".line"));
+    highlightOnHover(svg);
 
 
   }
 
-function highlightOnHover(svg, path) {
+function highlightOnHover(svg) {
+
+  var path = svg.selectAll(".line");
   
-  if ("ontouchstart" in document) svg
+  if ("ontouchstart" in document) path
       .style("-webkit-tap-highlight-color", "transparent")
       .on("touchmove", moved)
       .on("touchstart", entered)
       .on("touchend", left)
-  else svg
+  else path
       .on("mousemove", moved)
       .on("mouseenter", entered)
       .on("mouseleave", left);
@@ -154,10 +156,11 @@ function highlightOnHover(svg, path) {
   }
 
   function entered() {
-    svg.attr("opacity", ".1");
+    svg.selectAll(".line").attr("opacity", ".2");
+    d3.select(this).attr("opacity", "1");
   }
 
   function left() {
-    svg.attr("opacity", "1");
+    svg.selectAll(".line").attr("opacity", "1");
   }
 }
