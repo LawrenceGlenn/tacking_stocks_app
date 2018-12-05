@@ -7,7 +7,7 @@ drawStockChart(parseData(data));
 function parseData(chart) {
   var arr = [];
   //create a d3 parser to format the time
-  var myTimeParser = d3.timeParse("%Y-%m-%d");
+  var myTimeParser = d3.timeParse("%Y-%m-%d ");
   var time = "";
   for (var i in chart) {
     if(chart[i].label.includes(" AM") || chart[i].label.includes(" PM")){
@@ -47,6 +47,7 @@ function drawStockChart(data) {
   var x = d3.scaleTime().rangeRound([0, width]);
   var y = d3.scaleLinear().rangeRound([height, 0]);
 
+  //create a domain for the graph, including all the different values for y
   x.domain(d3.extent(data, function(d) { return d.date }));
   y.domain(d3.extent(
     [].concat(data.map(function (d) {return d.open}))
@@ -55,6 +56,7 @@ function drawStockChart(data) {
     .concat(data.map(function (d) {return d.high}))
     ));
 
+  //create lines
   var closeLine = d3.line()
     .x(function(d) { return x(d.date)})
     .y(function(d) { return y(d.close)})
@@ -89,6 +91,7 @@ g.append("g")
     .style("text-anchor", "end")
     .text("Price ($)");
 
+  //create the lines on the graph
   g.append("path")
     .datum(data)
     .attr("class", "line")
@@ -130,13 +133,12 @@ g.append("g")
     .attr("d", highLine);
 
 
-    //hover(svg, svg.selectAll(".line"), data);
+    highlightOnHover(svg, svg.selectAll(".line"));
 
 
   }
 
-function hover(svg, path, data) {
-  svg.style("position", "relative");
+function highlightOnHover(svg, path) {
   
   if ("ontouchstart" in document) svg
       .style("-webkit-tap-highlight-color", "transparent")
@@ -148,39 +150,14 @@ function hover(svg, path, data) {
       .on("mouseenter", entered)
       .on("mouseleave", left);
 
-  const dot = svg.append("g")
-      .attr("display", "none");
-
-  dot.append("circle")
-      .attr("r", 2.5);
-
-  dot.append("text")
-      .style("font", "10px sans-serif")
-      .attr("text-anchor", "middle")
-      .attr("y", -8);
-
   function moved() {
-    d3.event.preventDefault();
-    const ym = y.invert(d3.event.layerY);
-    const xm = x.invert(d3.event.layerX);
-    const i1 = d3.bisectLeft(data.dates, xm, 1);
-    const i0 = i1 - 1;
-    const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
-    const s = data.series.reduce((a, b) => Math.abs(a.values[i] - ym) < Math.abs(b.values[i] - ym) ? a : b);
-    path.attr("stroke", d => d === s ? null : "#ddd").filter(d => d === s).raise();
-    dot.attr("transform", `translate(${x(data.dates[i])},${y(s.values[i])})`);
-    dot.select("text").text(s.name);
-
-  focus.select('text').text(formatCurrency(d.close));
   }
 
   function entered() {
-    path.attr("stroke", "#ddd");
-    dot.attr("display", null);
+    svg.attr("opacity", ".1");
   }
 
   function left() {
-    path.attr("stroke", "green");
-    dot.attr("display", "none");
+    svg.attr("opacity", "1");
   }
 }
