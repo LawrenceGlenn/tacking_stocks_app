@@ -49,7 +49,7 @@ g.append("rect")
     .attr("height", height)
     .attr("opacity", "0")
       .on('mouseover', () => crossHairs.style('display', null))
-      .on('mouseout', () => crossHairs.style('display', 'none'))
+      .on('mouseout', mouseout)
     .on("mousemove", mousemoved);
 
   //set the range of the graph
@@ -112,6 +112,7 @@ g.append("g")
     .datum(data)
     .attr("class", "line")
     .attr("fill", "none")
+    .attr("id", "closeLine")
     .attr("stroke", "steelblue")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
@@ -122,6 +123,7 @@ g.append("g")
     .datum(data)
     .attr("class", "line")
     .attr("fill", "none")
+    .attr("id", "openLine")
     .attr("stroke", "gray")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
@@ -132,6 +134,7 @@ g.append("g")
     .datum(data)
     .attr("class", "line")
     .attr("fill", "none")
+    .attr("id", "lowLine")
     .attr("stroke", "red")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
@@ -160,12 +163,19 @@ crossHairs.append("circle")
 
 function mousemoved() {
   var m = d3.mouse(this),
-      p = closestPoint(path.node(), m);
+  p = closestPathTo(m);
  // line.attr("x1", p[0]).attr("y1", p[1]).attr("x2", m[0]).attr("y2", m[1]);
   circle.attr("cx", p[0]).attr("cy", p[1]);
-console.log("p0 "+p[0]+" : p1 "+p[1])
-console.log("m0 "+m[0]+" : m1 "+m[1])
 }
+
+function closestPathTo(m){
+  best = closestPoint(svg.select("path#highLine").node(), m);
+  if (best.distance > (closestPoint(svg.select("path#lowLine").node(), m)).distance) best = closestPoint(svg.select("path#lowLine").node(), m) ;
+  if (best.distance > (closestPoint(svg.select("path#closeLine").node(), m)).distance) best = closestPoint(svg.select("path#closeLine").node(), m) ;
+  if (best.distance > (closestPoint(svg.select("path#openLine").node(), m)).distance) best = closestPoint(svg.select("path#openLine").node(), m) ;
+  return best;
+}
+
 
   //  highlightOnHover(svg);
 
@@ -200,6 +210,7 @@ console.log("m0 "+m[0]+" : m1 "+m[1])
 }
 */
 //a function that determines the closest point to a line
+
 
 function closestPoint(pathNode, point){
   var pathLength = pathNode.getTotalLength(),
