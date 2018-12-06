@@ -43,15 +43,6 @@ function drawStockChart(data) {
   var g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-g.append("rect")
-.attr("class", "overlay")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("opacity", "0")
-      .on('mouseover', () => crossHairs.style('display', null))
-      .on('mouseout', mouseout)
-    .on("mousemove", mousemoved);
-
   //set the range of the graph
   var x = d3.scaleTime().rangeRound([0, width]);
   var y = d3.scaleLinear().rangeRound([height, 0]);
@@ -154,6 +145,15 @@ g.append("g")
 
 //var line = svg.select("class", "overlay").append("line");
 
+svg.select("g").append("rect")
+.attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("opacity", "0")
+      .on('mouseover', () => crossHairs.style('display', null))
+      .on('mouseout', mouseout)
+    .on("mousemove", mousemoved);
+
 const crossHairs = svg.append('g')
 .attr("class", "crossHairs")
 .style("display", "none");
@@ -162,20 +162,35 @@ crossHairs.append("circle")
 .attr("r", 4.5);
 
 function mousemoved() {
+    svg.selectAll(".line").attr("opacity", ".2");
   var m = d3.mouse(this),
   p = closestPathTo(m);
+    svg.selectAll(p.id).attr("opacity", "1");
  // line.attr("x1", p[0]).attr("y1", p[1]).attr("x2", m[0]).attr("y2", m[1]);
   circle.attr("cx", p[0]).attr("cy", p[1]);
 }
 
 function closestPathTo(m){
   best = closestPoint(svg.select("path#highLine").node(), m);
-  if (best.distance > (closestPoint(svg.select("path#lowLine").node(), m)).distance) best = closestPoint(svg.select("path#lowLine").node(), m) ;
-  if (best.distance > (closestPoint(svg.select("path#closeLine").node(), m)).distance) best = closestPoint(svg.select("path#closeLine").node(), m) ;
-  if (best.distance > (closestPoint(svg.select("path#openLine").node(), m)).distance) best = closestPoint(svg.select("path#openLine").node(), m) ;
+  best.id = "path#highLine";
+  if (best.distance > (closestPoint(svg.select("path#lowLine").node(), m)).distance){
+    best = closestPoint(svg.select("path#lowLine").node(), m) ;
+    best.id = "path#lowLine";
+  }
+  if (best.distance > (closestPoint(svg.select("path#closeLine").node(), m)).distance){
+    best = closestPoint(svg.select("path#closeLine").node(), m) ;
+    best.id = "path#closeLine";
+  }
+  if (best.distance > (closestPoint(svg.select("path#openLine").node(), m)).distance){
+    best = closestPoint(svg.select("path#openLine").node(), m) ;
+    best.id = "path#openLine";
+  }
   return best;
 }
 
+function mouseout(){
+    svg.selectAll(".line").attr("opacity", "1");
+}
 
   //  highlightOnHover(svg);
 
