@@ -1,7 +1,7 @@
 $('document').ready(function() {
-var data = $('.stock_info').data('stock').chart;
-//alert($('.stock_info').data('stock').chart[0]);
-drawStockChart(parseData(data));
+  var data = $('.stock_info').data('stock').chart;
+  //alert($('.stock_info').data('stock').chart[0]);
+  drawStockChart(parseData(data));
 });
 
 function parseData(chart) {
@@ -23,7 +23,7 @@ function parseData(chart) {
         low: +chart[i].low, //convert string to number
         high: +chart[i].high //convert string to number
     });
-   }
+  }
   return arr;
 }
 
@@ -31,9 +31,10 @@ function drawStockChart(data) {
 
   //set dimensions for the canvis the graph will be on
   var svgWidth = 600, svgHeight = 400;
-  var margin = { top: 20, right: 20, bottom: 60, left: 50 };
+  var margin = { top: 20, right: 80, bottom: 60, left: 50 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
+  var bisectDate = d3.bisector(d => d.date).right;
 
   var svg = d3.select('svg')
     .attr("width", svgWidth)
@@ -51,9 +52,9 @@ function drawStockChart(data) {
   x.domain(d3.extent(data, function(d) { return d.date }));
   y.domain(d3.extent(
     [].concat(data.map(function (d) {return d.open}))
-    .concat(data.map(function (d) {return d.close}))
-    .concat(data.map(function (d) {return d.low}))
-    .concat(data.map(function (d) {return d.high}))
+      .concat(data.map(function (d) {return d.close}))
+      .concat(data.map(function (d) {return d.low}))
+      .concat(data.map(function (d) {return d.high}))
     ));
 
   //create lines
@@ -74,23 +75,17 @@ function drawStockChart(data) {
     .y(function(d) { return y(d.high)})
 
 
-
-var circle = g.append("circle")
-    .attr("cx", -10)
-    .attr("cy", -10)
-    .attr("r", 3.5);
-
-//Add the X axis
-g.append("g")
-   .attr("transform", "translate(0," + height + ")")
-   .call(d3.axisBottom(x))
+  //Add the X axis
+  g.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
     .selectAll("text")  
     .style("text-anchor", "end")
     .attr("dx", "-.8em")
     .attr("dy", ".15em")
     .attr("transform", "rotate(-65)");
 
-//Add the Y axis
+  //Add the Y axis
   g.append("g")
     .call(d3.axisLeft(y))
     .append("text")
@@ -102,130 +97,145 @@ g.append("g")
   g.append("path")
     .datum(data)
     .attr("class", "line")
-    .attr("fill", "none")
     .attr("id", "closeLine")
     .attr("stroke", "steelblue")
-    .attr("stroke-linejoin", "round")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-width", 2.5)
     .attr("d", closeLine);
 
   g.append("path")
     .datum(data)
     .attr("class", "line")
-    .attr("fill", "none")
     .attr("id", "openLine")
     .attr("stroke", "gray")
-    .attr("stroke-linejoin", "round")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-width", 2.5)
     .attr("d", openLine);
 
   g.append("path")
     .datum(data)
     .attr("class", "line")
-    .attr("fill", "none")
     .attr("id", "lowLine")
     .attr("stroke", "red")
-    .attr("stroke-linejoin", "round")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-width", 2.5)
     .attr("d", lowLine);
 
   var path = g.append("path")
     .datum(data)
     .attr("class", "line")
-    .attr("fill", "none")
     .attr("id", "highLine")
     .attr("stroke", "green")
-    .attr("stroke-linejoin", "round")
-    .attr("stroke-linecap", "round")
-    .attr("stroke-width", 2.5)
     .attr("d", highLine);
 
-//var line = svg.select("class", "overlay").append("line");
 
-svg.select("g").append("rect")
-.attr("class", "overlay")
+
+  const crossHairs = svg.select('g').append('g')
+    .attr("class", "crossHairs")
+    .style("opacity", .8);
+
+  crossHairs.append("circle")
+    .attr("r", 4.5)
+    .attr("fill", "none")
+    .attr("stroke", "black");
+
+  crossHairs.append('line')
+    .classed('x', true)
+    .attr("fill", "none")
+    .attr("stroke", "black")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "3 3");
+
+  crossHairs.append('line')
+    .classed('y', true)
+    .attr("fill", "none")
+    .attr("stroke", "black")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "3 3");
+
+  crossHairs.append("text")
+    .attr('x', 8)
+    .attr("dy", ".25em")
+    .attr("font-size", "12px");
+
+  svg.select("g").append("rect")
+    .attr("class", "overlay")
     .attr("width", width)
     .attr("height", height)
     .attr("opacity", "0")
-      .on('mouseover', () => crossHairs.style('display', null))
-      .on('mouseout', mouseout)
+    .on('mouseover', () => crossHairs.style('display', null))
+    .on('mouseout', mouseout)
     .on("mousemove", mousemoved);
 
-const crossHairs = svg.append('g')
-.attr("class", "crossHairs")
-.style("display", "none");
-
-crossHairs.append("circle")
-.attr("r", 4.5);
-
-function mousemoved() {
+  function mousemoved() {
     svg.selectAll(".line").attr("opacity", ".2");
-  var m = d3.mouse(this),
-  p = closestPathTo(m);
-    svg.selectAll(p.id).attr("opacity", "1");
- // line.attr("x1", p[0]).attr("y1", p[1]).attr("x2", m[0]).attr("y2", m[1]);
-  circle.attr("cx", p[0]).attr("cy", p[1]);
-}
+    var m = d3.mouse(this),
+    p = closestPathTo(m);
+    p.attr("opacity", "1");
+    
+    d= closestDataToPoint(m);
+    var selectedData = d.high;
+    switch(p.node().id){
+      case "highLine": selectedData = d.high;
+      break;
 
-function closestPathTo(m){
-  best = closestPoint(svg.select("path#highLine").node(), m);
-  best.id = "path#highLine";
-  if (best.distance > (closestPoint(svg.select("path#lowLine").node(), m)).distance){
-    best = closestPoint(svg.select("path#lowLine").node(), m) ;
-    best.id = "path#lowLine";
-  }
-  if (best.distance > (closestPoint(svg.select("path#closeLine").node(), m)).distance){
-    best = closestPoint(svg.select("path#closeLine").node(), m) ;
-    best.id = "path#closeLine";
-  }
-  if (best.distance > (closestPoint(svg.select("path#openLine").node(), m)).distance){
-    best = closestPoint(svg.select("path#openLine").node(), m) ;
-    best.id = "path#openLine";
-  }
-  return best;
-}
+      case "lowLine": selectedData = d.low;
+      break;
 
-function mouseout(){
+      case "openLine": selectedData = d.open;
+      break;
+
+      case "closeLine": selectedData = d.close;
+      break;
+          }
+      crossHairs.attr('transform', `translate(${x(d.date)}, ${y(selectedData)})`);
+      crossHairs.select('line.x')
+        .attr('x1', 0)
+        .attr('x2', -x(d.date))
+        .attr('y1', 0)
+        .attr('y2', 0);
+
+      crossHairs.select('line.y')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', height - y(selectedData));
+
+        crossHairs.select("text").text("$"+d3.format(".2f")(selectedData));
+
+  }
+
+  function closestPathTo(m){
+    var path = svg.select("path#highLine");
+    var best = closestPoint(path.node(), m);
+    if (best.distance > (closestPoint(svg.select("path#lowLine").node(), m)).distance){
+      best = closestPoint(svg.select("path#lowLine").node(), m) ;
+      path = svg.select("path#lowLine");
+    }
+    if (best.distance > (closestPoint(svg.select("path#closeLine").node(), m)).distance){
+      best = closestPoint(svg.select("path#closeLine").node(), m) ;
+      path = svg.select("path#closeLine");
+    }
+    if (best.distance > (closestPoint(svg.select("path#openLine").node(), m)).distance){
+      best = closestPoint(svg.select("path#openLine").node(), m) ;
+      path = svg.select("path#openLine");
+    }
+    return path;
+  }
+
+  function mouseout(){
     svg.selectAll(".line").attr("opacity", "1");
+    crossHairs.style('display', "none")
+  }
+
+
+function closestDataToPoint(point){
+  const x0 = x.invert(point[0]);
+  const i = bisectDate(data, x0, 2);
+  const d0 = data[i-1];
+  const d1 = data[i];
+  const d = x0 - d0 > d1 - x0 ? d1 : d0;
+
+  return d;
 }
 
-  //  highlightOnHover(svg);
-
-
-  }
-
-/*function highlightOnHover(svg) {
-
-  var path = svg.selectAll(".line");
-  
-  if ("ontouchstart" in document) path
-      .style("-webkit-tap-highlight-color", "transparent")
-      .on("touchmove", moved)
-      .on("touchstart", entered)
-      .on("touchend", left)
-  else path
-      .on("mousemove", moved)
-      .on("mouseenter", entered)
-      .on("mouseleave", left);
-
-  function moved() {
-  }
-
-  function entered() {
-    svg.selectAll(".line").attr("opacity", ".2");
-    d3.select(this).attr("opacity", "1");
-  }
-
-  function left() {
-    svg.selectAll(".line").attr("opacity", "1");
-  }
 }
-*/
+
 //a function that determines the closest point to a line
-
 
 function closestPoint(pathNode, point){
   var pathLength = pathNode.getTotalLength(),
