@@ -4,6 +4,7 @@ $('document').ready(function() {
   drawStockChart(parseData(data));
 });
 
+
 function parseData(chart) {
   var arr = [];
   //create a d3 parser to format the time
@@ -30,8 +31,8 @@ function parseData(chart) {
 function drawStockChart(data) {
 
   //set dimensions for the canvis the graph will be on
-  var svgWidth = 600, svgHeight = 400;
-  var margin = { top: 20, right: 80, bottom: 60, left: 50 };
+  var svgWidth = 1000, svgHeight = 450;
+  var margin = { top: 20, right: 140, bottom: 60, left: 50 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
   var bisectDate = d3.bisector(d => d.date).right;
@@ -168,24 +169,28 @@ function drawStockChart(data) {
     p.attr("opacity", "1");
     
     d= closestDataToPoint(m);
-    var selectedData = d.high;
-    switch(p.node().id){
-      case "highLine": selectedData = d.high;
+    moveCrossHairs(d,p)
+  }
+
+  function moveCrossHairs(closestData, closestPath){
+    var selectedData = closestData.high;
+    switch(closestPath.node().id){
+      case "highLine": selectedData = closestData.high;
       break;
 
-      case "lowLine": selectedData = d.low;
+      case "lowLine": selectedData = closestData.low;
       break;
 
-      case "openLine": selectedData = d.open;
+      case "openLine": selectedData = closestData.open;
       break;
 
-      case "closeLine": selectedData = d.close;
+      case "closeLine": selectedData = closestData.close;
       break;
           }
-      crossHairs.attr('transform', `translate(${x(d.date)}, ${y(selectedData)})`);
+      crossHairs.attr('transform', `translate(${x(closestData.date)}, ${y(selectedData)})`);
       crossHairs.select('line.x')
         .attr('x1', 0)
-        .attr('x2', -x(d.date))
+        .attr('x2', -x(closestData.date))
         .attr('y1', 0)
         .attr('y2', 0);
 
@@ -195,8 +200,7 @@ function drawStockChart(data) {
         .attr('y1', 0)
         .attr('y2', height - y(selectedData));
 
-        crossHairs.select("text").text("$"+d3.format(".2f")(selectedData));
-
+        crossHairs.select("text").text(closestPath.node().id.replace("Line","")+" price $"+d3.format(".2f")(selectedData));
   }
 
   function closestPathTo(m){
