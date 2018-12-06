@@ -36,6 +36,7 @@ function drawStockChart(data) {
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
   var bisectDate = d3.bisector(d => d.date).right;
+  var lineAnimationTime = 3000;
 
   var svg = d3.select('svg')
     .attr("width", svgWidth)
@@ -162,6 +163,22 @@ function drawStockChart(data) {
     .on('mouseout', mouseout)
     .on("mousemove", mousemoved);
 
+  animateLines();
+
+  function animateLines(){
+    svg.selectAll(".line")
+      .each(function(x){
+        var totalLength = d3.select(this).node().getTotalLength()
+        d3.select(this)
+          .attr("stroke-dasharray", totalLength + " " + totalLength ) 
+          .attr("stroke-dashoffset", totalLength)
+          .transition()
+            .duration(lineAnimationTime)
+            .ease(d3.easeLinear)
+            .attr("stroke-dashoffset", 0);
+      });
+  }
+
   function mousemoved() {
     svg.selectAll(".line").attr("opacity", ".2");
     var m = d3.mouse(this),
@@ -169,10 +186,15 @@ function drawStockChart(data) {
     p.attr("opacity", "1");
     
     d= closestDataToPoint(m);
-    moveCrossHairs(d,p)
+    updateCrossHairs(d,p);
   }
 
-  function moveCrossHairs(closestData, closestPath){
+  function mouseout(){
+    svg.selectAll(".line").attr("opacity", "1");
+    crossHairs.style('display', "none")
+  }
+
+  function updateCrossHairs(closestData, closestPath){
     var selectedData = closestData.high;
     switch(closestPath.node().id){
       case "highLine": selectedData = closestData.high;
@@ -219,11 +241,6 @@ function drawStockChart(data) {
       path = svg.select("path#openLine");
     }
     return path;
-  }
-
-  function mouseout(){
-    svg.selectAll(".line").attr("opacity", "1");
-    crossHairs.style('display', "none")
   }
 
 
