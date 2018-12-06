@@ -43,6 +43,15 @@ function drawStockChart(data) {
   var g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+g.append("rect")
+.attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("opacity", "0")
+      .on('mouseover', () => crossHairs.style('display', null))
+      .on('mouseout', () => crossHairs.style('display', 'none'))
+    .on("mousemove", mousemoved);
+
   //set the range of the graph
   var x = d3.scaleTime().rangeRound([0, width]);
   var y = d3.scaleLinear().rangeRound([height, 0]);
@@ -72,6 +81,13 @@ function drawStockChart(data) {
   var highLine = d3.line()
     .x(function(d) { return x(d.date)})
     .y(function(d) { return y(d.high)})
+
+
+
+var circle = g.append("circle")
+    .attr("cx", -10)
+    .attr("cy", -10)
+    .attr("r", 3.5);
 
 //Add the X axis
 g.append("g")
@@ -122,23 +138,41 @@ g.append("g")
     .attr("stroke-width", 2.5)
     .attr("d", lowLine);
 
-  g.append("path")
+  var path = g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("fill", "none")
+    .attr("id", "highLine")
     .attr("stroke", "green")
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
     .attr("stroke-width", 2.5)
     .attr("d", highLine);
 
+//var line = svg.select("class", "overlay").append("line");
 
-    highlightOnHover(svg);
+const crossHairs = svg.append('g')
+.attr("class", "crossHairs")
+.style("display", "none");
+
+crossHairs.append("circle")
+.attr("r", 4.5);
+
+function mousemoved() {
+  var m = d3.mouse(this),
+      p = closestPoint(path.node(), m);
+ // line.attr("x1", p[0]).attr("y1", p[1]).attr("x2", m[0]).attr("y2", m[1]);
+  circle.attr("cx", p[0]).attr("cy", p[1]);
+console.log("p0 "+p[0]+" : p1 "+p[1])
+console.log("m0 "+m[0]+" : m1 "+m[1])
+}
+
+  //  highlightOnHover(svg);
 
 
   }
 
-function highlightOnHover(svg) {
+/*function highlightOnHover(svg) {
 
   var path = svg.selectAll(".line");
   
@@ -163,4 +197,46 @@ function highlightOnHover(svg) {
   function left() {
     svg.selectAll(".line").attr("opacity", "1");
   }
+}
+*/
+//a function that determines the closest point to a line
+
+function closestPoint(pathNode, point){
+  var pathLength = pathNode.getTotalLength(),
+  precision = 10,
+  best,
+  bestLength,
+  bestDistance = Infinity;
+
+  //distance to point
+  function distanceToPoint(p) {
+    var dx = p.x - point[0], dy= p.y - point[1];
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  //determine first best guess
+  for (var scan, scanLength = 0, scanDistance; scanLength <= pathLength; scanLength += precision) {
+    if ((scanDistance = distanceToPoint(scan = pathNode.getPointAtLength(scanLength))) < bestDistance) {
+      best = scan, bestLength = scanLength, bestDistance = scanDistance;
+    }
+  }
+
+  // binary search to determine estimate to recision value
+  precision /= 2;
+  while (precision > 0.5) {
+    var before, after, beforeLength, afterLength, beforeDistance, afterDistance;
+    if ((beforeLength = bestLength - precision) >= 0 &&
+      (beforeDistance = distanceToPoint(before = pathNode.getPointAtLength(beforeLength))) < bestDistance) {
+      best = before, bestLength = beforeLength, bestDistance = beforeDistance;
+    } else if ((afterLength = bestLength + precision) <= pathLength &&
+      (afterDistance = distanceToPoint(after = pathNode.getPointAtLength(afterLength))) < bestDistance) {
+      best = after, bestLength = afterLength, bestDistance = afterDistance;
+    } else {
+      precision /= 2;
+    }
+  }
+
+  best = [best.x , best.y];
+  best.distance = bestDistance;
+  return best;
 }

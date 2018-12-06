@@ -7,3 +7,10 @@
     {
         border: 1px solid lightgray;
     }
+
+
+rect {
+  fill: none;
+  cursor: crosshair;
+  pointer-events: all;
+}
