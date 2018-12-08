@@ -128,7 +128,8 @@ function drawStockChart(data) {
 
   const crossHairs = svg.select('g').append('g')
     .attr("class", "crossHairs")
-    .style("opacity", .8);
+    .style("opacity", .8)
+    .style('display', "none");
 
   crossHairs.append("circle")
     .attr("r", 4.5)
@@ -191,7 +192,7 @@ function drawStockChart(data) {
 
   function mouseout(){
     svg.selectAll(".line").attr("opacity", "1");
-    crossHairs.style('display', "none")
+    crossHairs.style('display', "none");
   }
 
   function updateCrossHairs(closestData, closestPath){
