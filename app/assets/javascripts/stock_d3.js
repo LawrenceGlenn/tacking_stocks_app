@@ -38,7 +38,7 @@ function drawStockChart(data) {
   var bisectDate = d3.bisector(d => d.date).right;
   var lineAnimationTime = 3000;
 
-  var svg = d3.select('svg')
+  var svg = d3.select('svg.stock_chart')
     .attr("width", svgWidth)
     .attr("height", svgHeight);
 
