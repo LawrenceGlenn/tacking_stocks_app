@@ -4,10 +4,7 @@ class StockController < ApplicationController
   end
 
   def show
-  end
-
-  def new
-    @stock = Stock.new
+    @stock = Stock.new(params[:id])
     if request.xhr?
       respond_to do |format|
         format.json {

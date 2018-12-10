@@ -1,0 +1,13 @@
+
+<%= content_tag :div, class: "stock_info", data: {stock: @stock} do %>
+<% end %>
+
+
+
+<body>
+  <div class="stock_chart_title">
+    <%= @stock.name + "\n as of "+ @stock.chart.first.date.to_s + " " + @stock.chart.first.label.chomp(" PM").chomp(" AM") %>
+  </div>
+  <svg class="stock_chart"></svg>
+  <%= render 'form', stock: @stock %>
+  </body>
