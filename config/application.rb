@@ -12,9 +12,5 @@ module TrackingStocksApp
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    
-
-    #include error module on startup
-    include Error::ErrorHandler
   end
 end
