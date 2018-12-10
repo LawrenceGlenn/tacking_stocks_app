@@ -4,16 +4,23 @@ class StockController < ApplicationController
   end
 
   def show
-    @stock = Stock.new(params[:id])
+    begin
+      @stock = Stock.new(params[:id])
+    rescue StandardError => e
+          render action: "symbolerror"
+    end
     if request.xhr?
       respond_to do |format|
         format.json {
-          render json: {stocks: @stocks}
+          render json: {stock: @stock}
         }
         rescure StandardError => e
         render json: {errors: e.message}, status: :unprocessable_entity
       end
     end
+  end
+
+  def symbolerror
   end
 
 end
