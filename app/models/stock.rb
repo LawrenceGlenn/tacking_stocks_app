@@ -1,5 +1,5 @@
 class Stock
-  attr_reader :price, :chart
+  attr_reader :price, :chart, :news
   
   def initialize(sym = "MSFT")
     @sym = sym
@@ -20,6 +20,5 @@ class Stock
   def headline
     @news.first.headline
   end
-
 
 end

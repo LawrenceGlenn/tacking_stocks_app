@@ -1,7 +1,9 @@
 $('document').ready(function() {
   var data = $('.stock_info').data('stock').chart;
+  var scrollTextData = $('.stock_info').data('stock').news;
   //alert($('.stock_info').data('stock').chart[0]);
   drawStockChart(parseData(data));
+  drawScrollingHeadlines(scrollTextData);
 });
 
 
@@ -26,6 +28,31 @@ function parseData(chart) {
     });
   }
   return arr;
+}
+
+function drawScrollingHeadlines(data) {
+  var svg = d3.select('svg.scrolling_headlines')
+  .attr("width", 1000)
+  .attr("height", "20px");
+
+  var tx = svg.append("text")
+    .attr("y", "1em")
+    .text(data.map(function (d) {return d.headline + " | "}));
+
+  repeat();
+
+  var totalLength = tx.node().getComputedTextLength();
+
+  function repeat() {
+
+    tx.attr("dx", 1000)
+      .transition()
+      .duration(totalLength*10 + 100)
+      .ease(d3.easeLinear)
+      .attr("dx", -totalLength)
+      .on("end", repeat);
+  };
+
 }
 
 function drawStockChart(data) {
