@@ -9,5 +9,11 @@
     <%= @stock.name + "\n as of "+ @stock.chart.first.date.to_s + " " + @stock.chart.first.label.chomp(" PM").chomp(" AM") %>
   </div>
   <svg class="stock_chart"></svg>
+  <div>
+    Latest <%= @stock.name%> Headline
+    <div>
+      <%= @stock.headline %>
+    </div>
+  </div>
   <%= render 'form', stock: @stock %>
-  </body>
+</body>
