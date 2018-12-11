@@ -31,25 +31,26 @@ function parseData(chart) {
 }
 
 function drawScrollingHeadlines(data) {
+  const completionPause = 100;
+  const millisecPerPixel = 10;
+  const width = 1000;
   var svg = d3.select('svg.scrolling_headlines')
-  .attr("width", 1000)
+  .attr("width", width)
   .attr("height", "20px");
-
   var tx = svg.append("text")
     .attr("y", "1em")
-    .text(data.map(function (d) {return d.headline + " | "}));
+    .text(Array.join((data.map(function (d) {return d.headline})), " | "));
 
   repeat();
 
   var totalLength = tx.node().getComputedTextLength();
 
   function repeat() {
-
-    tx.attr("dx", 1000)
+    tx.attr("dx", width)
       .transition()
-      .duration(totalLength*10 + 100)
+      .duration(totalLength*millisecPerPixel)
       .ease(d3.easeLinear)
-      .attr("dx", -totalLength)
+      .attr("dx", -(totalLength+completionPause))
       .on("end", repeat);
   };
 
