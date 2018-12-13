@@ -116,19 +116,19 @@ feMerge.append("feMergeNode")
   //create lines
   var closeLine = d3.line()
     .x(function(d) { return x(d.date)})
-    .y(function(d) { return y(d.close)})
+    .y(function(d) { return y(d.close)});
 
   var openLine = d3.line()
     .x(function(d) { return x(d.date)})
-    .y(function(d) { return y(d.open)})
+    .y(function(d) { return y(d.open)});
 
   var lowLine = d3.line()
     .x(function(d) { return x(d.date)})
-    .y(function(d) { return y(d.low)})
+    .y(function(d) { return y(d.low)});
 
   var highLine = d3.line()
     .x(function(d) { return x(d.date)})
-    .y(function(d) { return y(d.high)})
+    .y(function(d) { return y(d.high)});
 
 
   //Add the X axis
@@ -155,6 +155,7 @@ feMerge.append("feMergeNode")
     .attr("class", "line")
     .attr("id", "closeLine")
     .attr("stroke", "steelblue")
+    .attr("stroke-width", 1.5)
     .attr("d", closeLine);
 
   g.append("path")
@@ -162,6 +163,7 @@ feMerge.append("feMergeNode")
     .attr("class", "line")
     .attr("id", "openLine")
     .attr("stroke", "gray")
+    .attr("stroke-width", 1.5)
     .attr("d", openLine);
 
   g.append("path")
@@ -169,13 +171,15 @@ feMerge.append("feMergeNode")
     .attr("class", "line")
     .attr("id", "lowLine")
     .attr("stroke", "red")
+    .attr("stroke-width", 1.5)
     .attr("d", lowLine);
 
-  var path = g.append("path")
+  g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("id", "highLine")
     .attr("stroke", "green")
+    .attr("stroke-width", 1.5)
     .attr("d", highLine);
 
 
@@ -239,17 +243,22 @@ d3.selectAll(".line")
   }
 
   function mousemoved() {
-    svg.selectAll(".line").attr("opacity", ".3");
+    svg.selectAll(".line")
+      .attr("opacity", ".3")
+      .attr("stroke-width", 1.5);
     var m = d3.mouse(this),
     p = closestPathTo(m);
-    p.attr("opacity", "1");
+    p.attr("opacity", "1")
+    .attr("stroke-width", 4);
     
     d= closestDataToPoint(m);
     updateCrossHairs(d,p);
   }
 
   function mouseout(){
-    svg.selectAll(".line").attr("opacity", "1");
+    svg.selectAll(".line")
+      .attr("opacity", "1")
+      .attr("stroke-width", 1.5);
     crossHairs.style('display', "none");
   }
 
