@@ -17,15 +17,17 @@ function parseData(chart) {
       time = chart[i].label;
       myTimeParser = (chart[i].label.includes(":"))? d3.timeParse("%Y-%m-%d %H:%M %p") : d3.timeParse("%Y-%m-%d %H %p");    
     }
-    arr.push(
-      {
-        //combine time of day and date and parse it into d3 format
-        date: myTimeParser(chart[i].date+" "+time),
-        close: +chart[i].close, //convert string to number
-        open: +chart[i].open, //convert string to number
-        low: +chart[i].low, //convert string to number
-        high: +chart[i].high //convert string to number
-    });
+    if (chart[i].change_over_time){
+      arr.push(
+        {
+          //combine time of day and date and parse it into d3 format
+          date: myTimeParser(chart[i].date+" "+time),
+          close: +chart[i].close, //convert string to number
+          open: +chart[i].open, //convert string to number
+          low: +chart[i].low, //convert string to number
+          high: +chart[i].high //convert string to number
+      });
+    }
   }
   return arr;
 }
