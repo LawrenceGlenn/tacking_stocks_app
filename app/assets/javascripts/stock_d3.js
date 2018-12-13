@@ -32,13 +32,16 @@ function parseData(chart) {
 
 function drawScrollingHeadlines(data) {
   const completionPause = 100;
-  const millisecPerPixel = 10;
+  const millisecPerPixel = 15;
   const width = 1000;
   var svg = d3.select('svg.scrolling_headlines')
   .attr("width", width)
   .attr("height", "20px");
   var tx = svg.append("text")
     .attr("y", "1em")
+    .attr("stroke", "white")
+    .attr("fill", "white")
+    .attr("font-family", "Sans-serif")
     .text(Array.join((data.map(function (d) {return d.headline})), " | "));
 
   repeat();
@@ -73,6 +76,23 @@ function drawStockChart(data) {
   // move the drawing area over by margin to make room for the axis
   var g = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+  //Container for the gradients
+var defs = svg.append("defs");
+
+//Filter for the outside glow
+var filter = defs.append("filter")
+    .attr("id","glow");
+filter.append("feGaussianBlur")
+    .attr("stdDeviation", "8")
+    .attr("result","coloredBlur");
+var feMerge = filter.append("feMerge");
+feMerge.append("feMergeNode")
+    .attr("in","coloredBlur");
+feMerge.append("feMergeNode")
+    .attr("in","SourceGraphic");
+
 
   //set the range of the graph
   var x = d3.scaleTime().rangeRound([0, width]);
@@ -162,24 +182,25 @@ function drawStockChart(data) {
   crossHairs.append("circle")
     .attr("r", 4.5)
     .attr("fill", "none")
-    .attr("stroke", "black");
+    .attr("stroke", "white");
 
   crossHairs.append('line')
     .classed('x', true)
     .attr("fill", "none")
-    .attr("stroke", "black")
+    .attr("stroke", "white")
     .attr("stroke-width", 1.5)
     .attr("stroke-dasharray", "3 3");
 
   crossHairs.append('line')
     .classed('y', true)
     .attr("fill", "none")
-    .attr("stroke", "black")
+    .attr("stroke", "white")
     .attr("stroke-width", 1.5)
     .attr("stroke-dasharray", "3 3");
 
   crossHairs.append("text")
     .attr('x', 8)
+    .attr("fill", "white")
     .attr("dy", ".25em")
     .attr("font-size", "12px");
 
@@ -191,6 +212,9 @@ function drawStockChart(data) {
     .on('mouseover', () => crossHairs.style('display', null))
     .on('mouseout', mouseout)
     .on("mousemove", mousemoved);
+
+d3.selectAll(".line")
+    .style("filter", "url(#glow)");
 
   animateLines();
 
@@ -209,7 +233,7 @@ function drawStockChart(data) {
   }
 
   function mousemoved() {
-    svg.selectAll(".line").attr("opacity", ".2");
+    svg.selectAll(".line").attr("opacity", ".3");
     var m = d3.mouse(this),
     p = closestPathTo(m);
     p.attr("opacity", "1");
