@@ -65,11 +65,15 @@ function drawStockChart(data) {
 
   //set dimensions for the canvis the graph will be on
   var svgWidth = 1000, svgHeight = 450;
-  var margin = { top: 20, right: 140, bottom: 60, left: 50 };
+  var margin = { top: 20, right: 140, bottom: 80, left: 60 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
   var bisectDate = d3.bisector(d => d.date).right;
   var lineAnimationTime = 3000;
+  const openColor = "gray";
+  const closeColor = "steelblue";
+  const highColor = "green";
+  const lowColor = "red";
 
   var svg = d3.select('svg.stock_chart')
     .attr("width", svgWidth)
@@ -90,8 +94,6 @@ filter.append("feGaussianBlur")
     .attr("stdDeviation", "10")
     .attr("result","coloredBlur");
 var feMerge = filter.append("feMerge");
-feMerge.append("feMergeNode")
-    .attr("in","coloredBlur");
 feMerge.append("feMergeNode")
     .attr("in","coloredBlur");
 feMerge.append("feMergeNode")
@@ -156,32 +158,36 @@ feMerge.append("feMergeNode")
     .datum(data)
     .attr("class", "line")
     .attr("id", "closeLine")
-    .attr("stroke", "steelblue")
+    .attr("stroke", closeColor)
     .attr("stroke-width", 1.5)
+    .style("opactiy", 1)
     .attr("d", closeLine);
 
   g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("id", "openLine")
-    .attr("stroke", "gray")
+    .attr("stroke", openColor)
     .attr("stroke-width", 1.5)
+    .style("opactiy", 1)
     .attr("d", openLine);
 
   g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("id", "lowLine")
-    .attr("stroke", "red")
+    .attr("stroke", lowColor)
     .attr("stroke-width", 1.5)
+    .style("opactiy", 1)
     .attr("d", lowLine);
 
   g.append("path")
     .datum(data)
     .attr("class", "line")
     .attr("id", "highLine")
-    .attr("stroke", "green")
+    .attr("stroke", highColor)
     .attr("stroke-width", 1.5)
+    .style("opactiy", "1")
     .attr("d", highLine);
 
 
@@ -192,7 +198,7 @@ feMerge.append("feMergeNode")
     .style('display', "none");
 
   crossHairs.append("circle")
-    .attr("r", 4.5)
+    .attr("r", 6.5)
     .attr("fill", "none")
     .attr("stroke", "white");
 
@@ -225,8 +231,96 @@ feMerge.append("feMergeNode")
     .on('mouseout', mouseout)
     .on("mousemove", mousemoved);
 
-d3.selectAll(".line")
+  d3.selectAll(".line")
     .style("filter", "url(#glow)");
+
+  svg.append("text")
+    .style("text-anchor", "middle")
+    .attr("class", "openFilter")
+    .attr("stroke", openColor)
+    .attr("fill", openColor)
+    .attr("font-size", 24)
+    .attr("x", width/2-150)
+    .attr("y", svgHeight-10)
+    .style("filter", "url(#glow)")
+    .text("Open")         
+     .on("click", function(){
+       // determine if current line is visible
+       var active   = openLine.active ? false : true,
+       newDisplay = active ? "none" : null
+       newOpacity = active ? .3 : 1;
+       // hide or show the elements
+       d3.select("#openLine").attr("display", newDisplay);
+       d3.select(this).attr("opacity", newOpacity);
+       // update whether or not the elements are active
+       openLine.active = active;
+     });
+
+  svg.append("text")
+    .style("text-anchor", "middle")
+    .attr("class", "closeFilter")
+    .attr("stroke", closeColor)
+    .attr("fill", closeColor)
+    .attr("font-size", 24)
+    .attr("x", width/2-50)
+    .attr("y", svgHeight-10)
+    .style("filter", "url(#glow)")
+    .text("Close")         
+     .on("click", function(){
+       // determine if current line is visible
+       var active   = closeLine.active ? false : true,
+       newDisplay = active ? "none" : null
+       newOpacity = active ? .3 : 1;
+       // hide or show the elements
+       d3.select("#closeLine").attr("display", newDisplay);
+       d3.select(this).attr("opacity", newOpacity);
+       // update whether or not the elements are active
+       closeLine.active = active;
+     });
+
+  svg.append("text")
+    .style("text-anchor", "middle")
+    .attr("class", "highFilter")
+    .attr("stroke", highColor)
+    .attr("fill", highColor)
+    .attr("font-size", 24)
+    .attr("x", width/2+50)
+    .attr("y", svgHeight-10)
+    .style("filter", "url(#glow)")
+    .text("High")         
+     .on("click", function(){
+       // determine if current line is visible
+       var active   = highLine.active ? false : true,
+       newDisplay = active ? "none" : null
+       newOpacity = active ? .3 : 1;
+       // hide or show the elements
+       d3.select("#highLine").attr("display", newDisplay);
+       d3.select(this).attr("opacity", newOpacity);
+       // update whether or not the elements are active
+       highLine.active = active;
+     });
+
+  svg.append("text")
+    .style("text-anchor", "middle")
+    .attr("class", "lowFilter")
+    .attr("stroke", lowColor)
+    .attr("fill", lowColor)
+    .attr("font-size", 24)
+    .attr("x", width/2+150)
+    .attr("y", svgHeight-10)
+    .style("filter", "url(#glow)")
+    .text("Low")         
+     .on("click", function(){
+       // determine if current line is visible
+       var active   = lowLine.active ? false : true,
+       newDisplay = active ? "none" : null
+       newOpacity = active ? .3 : 1;
+       // hide or show the elements
+       d3.select("#lowLine").attr("display", newDisplay);
+       d3.select(this).attr("opacity", newOpacity);
+       // update whether or not the elements are active
+       lowLine.active = active;
+     });
 
   animateLines();
 
@@ -296,21 +390,22 @@ d3.selectAll(".line")
   }
 
   function closestPathTo(m){
-    var path = svg.select("path#highLine");
-    var best = closestPoint(path.node(), m);
-    if (best.distance > (closestPoint(svg.select("path#lowLine").node(), m)).distance){
-      best = closestPoint(svg.select("path#lowLine").node(), m) ;
-      path = svg.select("path#lowLine");
-    }
-    if (best.distance > (closestPoint(svg.select("path#closeLine").node(), m)).distance){
-      best = closestPoint(svg.select("path#closeLine").node(), m) ;
-      path = svg.select("path#closeLine");
-    }
-    if (best.distance > (closestPoint(svg.select("path#openLine").node(), m)).distance){
-      best = closestPoint(svg.select("path#openLine").node(), m) ;
-      path = svg.select("path#openLine");
-    }
+    var best = [0,0];
+    best.distance = Infinity;
+    var path;
+    bestPath("highLine");
+    bestPath("lowLine");
+    bestPath("openLine");
+    bestPath("closeLine");
     return path;
+
+    function bestPath(pathName){
+      var currentNode = svg.select("path#"+pathName).node()
+    if ((best.distance > (closestPoint(currentNode, m)).distance)&& !currentNode.attributes.display){
+      best = closestPoint(currentNode, m) ;
+      path = svg.select("path#"+pathName);
+    }
+    }
   }
 
 
