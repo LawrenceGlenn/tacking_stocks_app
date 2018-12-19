@@ -134,6 +134,24 @@ feMerge.append("feMergeNode")
     .x(function(d) { return x(d.date)})
     .y(function(d) { return y(d.high)});
 
+  //create areas
+  var closeArea = d3.area()
+    .x(function(d) { return x(d.date)})
+    .y0(height)
+    .y1(function(d) { return y(d.close)});
+  var openArea = d3.area()
+    .x(function(d) { return x(d.date)})
+    .y0(height)
+    .y1(function(d) { return y(d.open)});
+  var highArea = d3.area()
+    .x(function(d) { return x(d.date)})
+    .y0(height)
+    .y1(function(d) { return y(d.high)});
+  var lowArea = d3.area()
+    .x(function(d) { return x(d.date)})
+    .y0(height)
+    .y1(function(d) { return y(d.low)});
+
 
   //Add the X axis
   g.append("g")
@@ -154,6 +172,8 @@ feMerge.append("feMergeNode")
     .text("Price ($)");
 
   //create the lines on the graph
+
+  //close line
   g.append("path")
     .datum(data)
     .attr("class", "line")
@@ -163,6 +183,16 @@ feMerge.append("feMergeNode")
     .style("opactiy", 1)
     .attr("d", closeLine);
 
+  //area under close line
+  g.append("path")
+    .datum(data)
+    .attr("class", "area_under_line")
+    .attr("id", "closeArea")
+    .style("opactiy", 1)
+    .attr("d", closeArea)
+    .style("fill",closeColor);
+
+  //open line
   g.append("path")
     .datum(data)
     .attr("class", "line")
@@ -172,6 +202,16 @@ feMerge.append("feMergeNode")
     .style("opactiy", 1)
     .attr("d", openLine);
 
+  //area under open line
+  g.append("path")
+    .datum(data)
+    .attr("class", "area_under_line")
+    .attr("id", "openArea")
+    .attr("fill", openColor)
+    .style("opactiy", 1)
+    .attr("d", openArea);
+
+  //low line
   g.append("path")
     .datum(data)
     .attr("class", "line")
@@ -181,6 +221,16 @@ feMerge.append("feMergeNode")
     .style("opactiy", 1)
     .attr("d", lowLine);
 
+  //area under low line
+  g.append("path")
+    .datum(data)
+    .attr("class", "area_under_line")
+    .attr("id", "lowArea")
+    .attr("fill", lowColor)
+    .style("opactiy", 1)
+    .attr("d", lowArea);
+
+  //high line
   g.append("path")
     .datum(data)
     .attr("class", "line")
@@ -190,8 +240,19 @@ feMerge.append("feMergeNode")
     .style("opactiy", "1")
     .attr("d", highLine);
 
+  //area under high line
+  g.append("path")
+    .datum(data)
+    .attr("class", "area_under_line")
+    .attr("id", "highArea")
+    .attr("fill", highColor)
+    .style("opactiy", 1)
+    .attr("d", highArea);
 
 
+
+
+  //create crosshairs for mouse over
   const crossHairs = svg.select('g').append('g')
     .attr("class", "crossHairs")
     .style("opacity", .8)
@@ -251,6 +312,7 @@ feMerge.append("feMergeNode")
        newOpacity = active ? .3 : 1;
        // hide or show the elements
        d3.select("#openLine").attr("display", newDisplay);
+       d3.select("#openArea").attr("display", newDisplay);
        d3.select(this).attr("opacity", newOpacity);
        // update whether or not the elements are active
        openLine.active = active;
@@ -273,6 +335,7 @@ feMerge.append("feMergeNode")
        newOpacity = active ? .3 : 1;
        // hide or show the elements
        d3.select("#closeLine").attr("display", newDisplay);
+       d3.select("#closeArea").attr("display", newDisplay);
        d3.select(this).attr("opacity", newOpacity);
        // update whether or not the elements are active
        closeLine.active = active;
@@ -295,6 +358,7 @@ feMerge.append("feMergeNode")
        newOpacity = active ? .3 : 1;
        // hide or show the elements
        d3.select("#highLine").attr("display", newDisplay);
+       d3.select("#highArea").attr("display", newDisplay);
        d3.select(this).attr("opacity", newOpacity);
        // update whether or not the elements are active
        highLine.active = active;
@@ -317,6 +381,7 @@ feMerge.append("feMergeNode")
        newOpacity = active ? .3 : 1;
        // hide or show the elements
        d3.select("#lowLine").attr("display", newDisplay);
+       d3.select("#lowArea").attr("display", newDisplay);
        d3.select(this).attr("opacity", newOpacity);
        // update whether or not the elements are active
        lowLine.active = active;
@@ -357,6 +422,7 @@ feMerge.append("feMergeNode")
       .attr("stroke-width", 1.5);
     crossHairs.style('display', "none");
   }
+
 
   function updateCrossHairs(closestData, closestPath){
     var selectedData = closestData.high;
