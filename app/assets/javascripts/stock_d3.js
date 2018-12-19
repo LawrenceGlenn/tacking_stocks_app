@@ -127,6 +127,11 @@ feMerge.append("feMergeNode")
       .concat(data.map(function (d) {return d.high}))
     ));
 
+  //function for y axis gridlines
+  function make_y_gridlines(){
+    return d3.axisLeft(y);
+  }
+
   //create lines
   var closeLine = d3.line()
     .x(function(d) { return x(d.date)})
@@ -179,6 +184,16 @@ feMerge.append("feMergeNode")
     .attr("fill", "#000")
     .style("text-anchor", "end")
     .text("Price ($)");
+
+
+  //add gridlines to y axis
+  g.append("g")
+    .attr("class", "grid")
+    .attr("opacity", 0.2)
+    .call(make_y_gridlines()
+      .tickSize(-width)
+      .tickFormat("")
+      );
 
   //create the lines on the graph
 
@@ -334,7 +349,7 @@ feMerge.append("feMergeNode")
 
 
 
-  function createStockLines(lineName, lineData, areaData, lineColor){
+  function createStockLines(lineName, d3Line, d3Area, lineColor){
   //create line
   g.append("path")
     .datum(data)
@@ -343,7 +358,7 @@ feMerge.append("feMergeNode")
     .attr("stroke", lineColor)
     .attr("stroke-width", 1.5)
     .style("opactiy", 1)
-    .attr("d", lineData);
+    .attr("d", d3Line);
 
   //create area under line
   g.append("path")
@@ -351,7 +366,7 @@ feMerge.append("feMergeNode")
     .attr("class", "area_under_line")
     .attr("id", lineName+"Area")
     .style("opactiy", 1)
-    .attr("d", areaData)
+    .attr("d", d3Area)
     .style("fill",function(d) {
       //set the gradient fill
       gradient(lineColor,lineName+'Gradient',"100%","0%","10%","100%",0,0.7)
