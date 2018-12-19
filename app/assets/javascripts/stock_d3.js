@@ -297,7 +297,7 @@ feMerge.append("feMergeNode")
     .attr('x', 8)
     .attr("fill", "white")
     .attr("dy", ".25em")
-    .attr("font-size", "12px");
+    .attr("font-size", "16px");
 
   svg.select("g").append("rect")
     .attr("class", "overlay")
@@ -423,11 +423,15 @@ feMerge.append("feMergeNode")
     svg.selectAll(".line")
       .attr("opacity", ".3")
       .attr("stroke-width", 1.5);
+    svg.selectAll(".area_under_line")
+      .style("display", "none");
     var m = d3.mouse(this),
     p = closestPathTo(m);
     p.attr("opacity", "1")
     .attr("stroke-width", 4);
-    
+    var idName = p.node().attributes.id.nodeValue.replace("Line", "");
+    svg.select("#"+idName + "Area")
+      .style("display", null);
     d= closestDataToPoint(m);
     updateCrossHairs(d,p);
   }
@@ -436,6 +440,8 @@ feMerge.append("feMergeNode")
     svg.selectAll(".line")
       .attr("opacity", "1")
       .attr("stroke-width", 1.5);
+    svg.selectAll(".area_under_line")
+      .style("display", null);
     crossHairs.style('display', "none");
   }
 
