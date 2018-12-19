@@ -71,7 +71,7 @@ function drawStockChart(data) {
   var bisectDate = d3.bisector(d => d.date).right;
   var lineAnimationTime = 3000;
   const openColor = "gray";
-  const closeColor = "steelblue";
+  const closeColor = "blue";
   const highColor = "green";
   const lowColor = "red";
 
@@ -190,7 +190,11 @@ feMerge.append("feMergeNode")
     .attr("id", "closeArea")
     .style("opactiy", 1)
     .attr("d", closeArea)
-    .style("fill",closeColor);
+    .style("fill",function(d) {
+      //set the gradient fill
+      gradient(closeColor,'closeGradient',"100%","0%","0%","100%",0,0.7)
+      return "url(#closeGradient)";
+    });
 
   //open line
   g.append("path")
@@ -207,9 +211,13 @@ feMerge.append("feMergeNode")
     .datum(data)
     .attr("class", "area_under_line")
     .attr("id", "openArea")
-    .attr("fill", openColor)
     .style("opactiy", 1)
-    .attr("d", openArea);
+    .attr("d", openArea)
+    .style("fill",function(d) {
+      //set the gradient fill
+      gradient(openColor,'openGradient',"100%","0%","0%","100%",0,0.7)
+      return "url(#openGradient)";
+    });
 
   //low line
   g.append("path")
@@ -226,9 +234,13 @@ feMerge.append("feMergeNode")
     .datum(data)
     .attr("class", "area_under_line")
     .attr("id", "lowArea")
-    .attr("fill", lowColor)
     .style("opactiy", 1)
-    .attr("d", lowArea);
+    .attr("d", lowArea)
+    .style("fill",function(d) {
+      //set the gradient fill
+      gradient(lowColor,'lowGradient',"100%","0%","0%","100%",0,0.7)
+      return "url(#lowGradient)";
+    });
 
   //high line
   g.append("path")
@@ -245,9 +257,13 @@ feMerge.append("feMergeNode")
     .datum(data)
     .attr("class", "area_under_line")
     .attr("id", "highArea")
-    .attr("fill", highColor)
     .style("opactiy", 1)
-    .attr("d", highArea);
+    .attr("d", highArea)
+    .style("fill",function(d) {
+      //set the gradient fill
+      gradient(highColor,'highGradient',"100%","0%","0%","100%",0,0.7)
+      return "url(#highGradient)";
+    });
 
 
 
@@ -423,6 +439,31 @@ feMerge.append("feMergeNode")
     crossHairs.style('display', "none");
   }
 
+  function gradient(colour,id,y1,y2,off1,off2,op1,op2){
+//gradient function.
+  //defines the gradient
+   svg.append("defs")
+  .append("linearGradient")
+  .attr("id",id)
+  .attr("x1", "0%").attr("y1", y1)
+  .attr("x2", "0%").attr("y2", y2);
+  idtag = '#'+id
+  //defines the start
+  d3.select(idtag)
+   .append("stop")
+  .attr("stop-color", colour)
+  .attr("class","begin")
+  .attr("offset", off1)
+  .attr("stop-opacity", op1);
+  //and the finish
+  d3.select(idtag)
+  .append("stop")
+  .attr("class","end")
+  .attr("stop-color", colour)
+  .attr("offset", off2)
+  .attr("stop-opacity", op2);
+
+}
 
   function updateCrossHairs(closestData, closestPath){
     var selectedData = closestData.high;
