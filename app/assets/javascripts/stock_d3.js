@@ -33,12 +33,17 @@ function parseData(chart) {
 }
 
 function drawScrollingHeadlines(data) {
+  //declare animation values
   const completionPause = 100;
   const millisecPerPixel = 15;
   const width = 1000;
+
+  //create svg area
   var svg = d3.select('svg.scrolling_headlines')
   .attr("width", width)
   .attr("height", "20px");
+
+  //add text
   var tx = svg.append("text")
     .attr("y", "1em")
     .attr("stroke", "white")
@@ -46,10 +51,13 @@ function drawScrollingHeadlines(data) {
     .attr("font-family", "Sans-serif")
     .text(Array.join((data.map(function (d) {return d.headline})), " | "));
 
+  //run function to loop the animation
   repeat();
 
+  // find the total length for use in the animation
   var totalLength = tx.node().getComputedTextLength();
 
+  //function that is repeated to allow for infinite scrolling
   function repeat() {
     tx.attr("dx", width)
       .transition()
@@ -68,8 +76,10 @@ function drawStockChart(data) {
   var margin = { top: 20, right: 140, bottom: 80, left: 60 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
+
+  //set declarations for future use
   var bisectDate = d3.bisector(d => d.date).right;
-  var lineAnimationTime = 3000;
+  const lineAnimationTime = 3000;
   const openColor = "gray";
   const closeColor = "blue";
   const highColor = "green";
@@ -152,7 +162,6 @@ feMerge.append("feMergeNode")
     .y0(height)
     .y1(function(d) { return y(d.low)});
 
-
   //Add the X axis
   g.append("g")
     .attr("transform", "translate(0," + height + ")")
@@ -173,99 +182,17 @@ feMerge.append("feMergeNode")
 
   //create the lines on the graph
 
-  //close line
-  g.append("path")
-    .datum(data)
-    .attr("class", "line")
-    .attr("id", "closeLine")
-    .attr("stroke", closeColor)
-    .attr("stroke-width", 1.5)
-    .style("opactiy", 1)
-    .attr("d", closeLine);
-
-  //area under close line
-  g.append("path")
-    .datum(data)
-    .attr("class", "area_under_line")
-    .attr("id", "closeArea")
-    .style("opactiy", 1)
-    .attr("d", closeArea)
-    .style("fill",function(d) {
-      //set the gradient fill
-      gradient(closeColor,'closeGradient',"100%","0%","0%","100%",0,0.7)
-      return "url(#closeGradient)";
-    });
-
   //open line
-  g.append("path")
-    .datum(data)
-    .attr("class", "line")
-    .attr("id", "openLine")
-    .attr("stroke", openColor)
-    .attr("stroke-width", 1.5)
-    .style("opactiy", 1)
-    .attr("d", openLine);
+  createStockLines("open", openLine, openArea, openColor);
 
-  //area under open line
-  g.append("path")
-    .datum(data)
-    .attr("class", "area_under_line")
-    .attr("id", "openArea")
-    .style("opactiy", 1)
-    .attr("d", openArea)
-    .style("fill",function(d) {
-      //set the gradient fill
-      gradient(openColor,'openGradient',"100%","0%","0%","100%",0,0.7)
-      return "url(#openGradient)";
-    });
-
-  //low line
-  g.append("path")
-    .datum(data)
-    .attr("class", "line")
-    .attr("id", "lowLine")
-    .attr("stroke", lowColor)
-    .attr("stroke-width", 1.5)
-    .style("opactiy", 1)
-    .attr("d", lowLine);
-
-  //area under low line
-  g.append("path")
-    .datum(data)
-    .attr("class", "area_under_line")
-    .attr("id", "lowArea")
-    .style("opactiy", 1)
-    .attr("d", lowArea)
-    .style("fill",function(d) {
-      //set the gradient fill
-      gradient(lowColor,'lowGradient',"100%","0%","0%","100%",0,0.7)
-      return "url(#lowGradient)";
-    });
+  //close line
+  createStockLines("close", closeLine, closeArea, closeColor);
 
   //high line
-  g.append("path")
-    .datum(data)
-    .attr("class", "line")
-    .attr("id", "highLine")
-    .attr("stroke", highColor)
-    .attr("stroke-width", 1.5)
-    .style("opactiy", "1")
-    .attr("d", highLine);
+  createStockLines("high", highLine, highArea, highColor);
 
-  //area under high line
-  g.append("path")
-    .datum(data)
-    .attr("class", "area_under_line")
-    .attr("id", "highArea")
-    .style("opactiy", 1)
-    .attr("d", highArea)
-    .style("fill",function(d) {
-      //set the gradient fill
-      gradient(highColor,'highGradient',"100%","0%","0%","100%",0,0.7)
-      return "url(#highGradient)";
-    });
-
-
+  //low line
+  createStockLines("low", lowLine, lowArea, lowColor);
 
 
   //create crosshairs for mouse over
@@ -404,6 +331,34 @@ feMerge.append("feMergeNode")
      });
 
   animateLines();
+
+
+
+  function createStockLines(lineName, lineData, areaData, lineColor){
+  //create line
+  g.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("id", lineName+"Line")
+    .attr("stroke", lineColor)
+    .attr("stroke-width", 1.5)
+    .style("opactiy", 1)
+    .attr("d", lineData);
+
+  //create area under line
+  g.append("path")
+    .datum(data)
+    .attr("class", "area_under_line")
+    .attr("id", lineName+"Area")
+    .style("opactiy", 1)
+    .attr("d", areaData)
+    .style("fill",function(d) {
+      //set the gradient fill
+      gradient(lineColor,lineName+'Gradient',"100%","0%","10%","100%",0,0.7)
+      return "url(#"+lineName+"Gradient)";
+    });
+
+  }
 
   function animateLines(){
     svg.selectAll(".line")

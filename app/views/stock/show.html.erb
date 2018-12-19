@@ -5,13 +5,15 @@
 
 
 <body>
+  <div class="stock_chart_container">
+    <h1 class="stock_chart_title">
+      <%= @stock.name%>
+    </h1>
+    <svg class="stock_chart"></svg>
+  </div>
   <div>
     Latest <%= @stock.name%> Headline
   </div>
   <svg class = "scrolling_headlines"></svg>
-  <div class="stock_chart_title">
-    <%= @stock.name + "\n as of "+ @stock.chart.first.date.to_s%>
-  </div>
-  <svg class="stock_chart"></svg>
   <%= render 'form', stock: @stock %>
 </body>
