@@ -255,100 +255,46 @@ feMerge.append("feMergeNode")
   d3.selectAll(".line")
     .style("filter", "url(#glow)");
 
-  svg.append("text")
-    .style("text-anchor", "middle")
-    .attr("class", "openFilter")
-    .attr("stroke", openColor)
-    .attr("fill", openColor)
-    .attr("font-size", 24)
-    .attr("x", width/2-150)
-    .attr("y", svgHeight-10)
-    .style("filter", "url(#glow)")
-    .text("Open")         
-     .on("click", function(){
-       // determine if current line is visible
-       var active   = openLine.active ? false : true,
-       newDisplay = active ? "none" : null
-       newOpacity = active ? .3 : 1;
-       // hide or show the elements
-       d3.select("#openLine").attr("display", newDisplay);
-       d3.select("#openArea").attr("display", newDisplay);
-       d3.select(this).attr("opacity", newOpacity);
-       // update whether or not the elements are active
-       openLine.active = active;
-     });
 
-  svg.append("text")
-    .style("text-anchor", "middle")
-    .attr("class", "closeFilter")
-    .attr("stroke", closeColor)
-    .attr("fill", closeColor)
-    .attr("font-size", 24)
-    .attr("x", width/2-50)
-    .attr("y", svgHeight-10)
-    .style("filter", "url(#glow)")
-    .text("Close")         
-     .on("click", function(){
-       // determine if current line is visible
-       var active   = closeLine.active ? false : true,
-       newDisplay = active ? "none" : null
-       newOpacity = active ? .3 : 1;
-       // hide or show the elements
-       d3.select("#closeLine").attr("display", newDisplay);
-       d3.select("#closeArea").attr("display", newDisplay);
-       d3.select(this).attr("opacity", newOpacity);
-       // update whether or not the elements are active
-       closeLine.active = active;
-     });
+  createFilterText("open", openColor, openLine, -150);
 
-  svg.append("text")
-    .style("text-anchor", "middle")
-    .attr("class", "highFilter")
-    .attr("stroke", highColor)
-    .attr("fill", highColor)
-    .attr("font-size", 24)
-    .attr("x", width/2+50)
-    .attr("y", svgHeight-10)
-    .style("filter", "url(#glow)")
-    .text("High")         
-     .on("click", function(){
-       // determine if current line is visible
-       var active   = highLine.active ? false : true,
-       newDisplay = active ? "none" : null
-       newOpacity = active ? .3 : 1;
-       // hide or show the elements
-       d3.select("#highLine").attr("display", newDisplay);
-       d3.select("#highArea").attr("display", newDisplay);
-       d3.select(this).attr("opacity", newOpacity);
-       // update whether or not the elements are active
-       highLine.active = active;
-     });
+  createFilterText("close", closeColor, closeLine, -50);
 
-  svg.append("text")
-    .style("text-anchor", "middle")
-    .attr("class", "lowFilter")
-    .attr("stroke", lowColor)
-    .attr("fill", lowColor)
-    .attr("font-size", 24)
-    .attr("x", width/2+150)
-    .attr("y", svgHeight-10)
-    .style("filter", "url(#glow)")
-    .text("Low")         
-     .on("click", function(){
-       // determine if current line is visible
-       var active   = lowLine.active ? false : true,
-       newDisplay = active ? "none" : null
-       newOpacity = active ? .3 : 1;
-       // hide or show the elements
-       d3.select("#lowLine").attr("display", newDisplay);
-       d3.select("#lowArea").attr("display", newDisplay);
-       d3.select(this).attr("opacity", newOpacity);
-       // update whether or not the elements are active
-       lowLine.active = active;
-     });
+  createFilterText("high", highColor, highLine, 50);
+
+  createFilterText("low", lowColor, lowLine, 150);
 
   animateLines();
 
+
+  function createFilterText(textName, textColor, linkedLine, xOffset){
+    svg.append("text")
+      .style("text-anchor", "middle")
+      .attr("class", textName+"Filter")
+      .attr("stroke", textColor)
+      .attr("fill", textColor)
+      .attr("font-size", 24)
+      .attr("x", width/2+xOffset)
+      .attr("y", svgHeight-10)
+      .style("filter", "url(#glow)")
+      .text(textName.substring(0, 1).toUpperCase() + textName.substring(1))         
+      .on("click", function(){
+        // determine if current line is visible
+        var active   = linkedLine.active ? false : true,
+        newDisplay = active ? "none" : null
+        newOpacity = active ? .3 : 1;
+        // hide or show the elements
+        d3.select("#"+textName+"Line").attr("display", newDisplay);
+        d3.select("#"+textName+"Area").attr("display", newDisplay);
+        d3.select(this).attr("opacity", newOpacity);
+        // update whether or not the elements are active
+        linkedLine.active = active;
+      });
+  }
+
+  function fadeOutLineAndArea(){
+
+  }
 
   function createStockLines(lineName, d3Line, d3Area, lineColor){
   //create line
