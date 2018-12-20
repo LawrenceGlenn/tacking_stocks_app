@@ -264,7 +264,7 @@ feMerge.append("feMergeNode")
 
   createFilterText("low", lowColor, lowLine, 150);
 
-  animateLines();
+  animateAllLines();
 
 
   function createFilterText(textName, textColor, linkedLine, xOffset){
@@ -283,17 +283,23 @@ feMerge.append("feMergeNode")
         var active   = linkedLine.active ? false : true,
         newDisplay = active ? "none" : null
         newOpacity = active ? .3 : 1;
+        active? fadeInOutLineAndArea("#"+textName+"Gradient",0) : animateLine(d3.select("#"+textName+"Line").node());
+        
         // hide or show the elements
         d3.select("#"+textName+"Line").attr("display", newDisplay);
-        d3.select("#"+textName+"Area").attr("display", newDisplay);
         d3.select(this).attr("opacity", newOpacity);
         // update whether or not the elements are active
         linkedLine.active = active;
       });
   }
 
-  function fadeOutLineAndArea(){
-
+  function fadeInOutLineAndArea(id, inOutValue){
+      d3.select(id)
+        .transition()
+          .duration(areaFadeTime)
+          .ease(d3.easeLinear)
+          .select("stop:last-child")
+          .style("stop-opacity",inOutValue);
   }
 
   function createStockLines(lineName, d3Line, d3Area, lineColor){
@@ -322,19 +328,25 @@ feMerge.append("feMergeNode")
 
   }
 
-  function animateLines(){
+  function animateAllLines(){
     svg.selectAll(".line")
       .each(function(x){
-        var totalLength = d3.select(this).node().getTotalLength()
-        d3.select(this)
+        animateLine(this);
+      });
+  }
+
+  function animateLine(line){
+    console.log(line);
+        var totalLength = d3.select(line).node().getTotalLength()
+        d3.select(line)
           .attr("stroke-dasharray", totalLength + " " + totalLength ) 
           .attr("stroke-dashoffset", totalLength)
           .transition()
             .duration(lineAnimationTime)
             .ease(d3.easeLinear)
             .attr("stroke-dashoffset", 0)
-            .on("end", function() {fadeAreaUnderLine()});
-      });
+            .on("end", function() {fadeInOutLineAndArea("#"+line.id.replace("Line","Gradient"),0.7)});
+
   }
 
   function mousemoved() {
@@ -366,12 +378,7 @@ feMerge.append("feMergeNode")
   function fadeAreaUnderLine(){
       d3.selectAll("linearGradient")
         .each(function(){
-          d3.select(this)
-            .transition()
-              .duration(areaFadeTime)
-              .ease(d3.easeLinear)
-              .select("stop:last-child")
-              .style("stop-opacity",0.7);
+          fadeInOutLineAndArea("#"+this.id,0.7)
         });
     
   }
