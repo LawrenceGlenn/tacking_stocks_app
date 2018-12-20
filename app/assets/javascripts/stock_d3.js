@@ -73,13 +73,14 @@ function drawStockChart(data) {
 
   //set dimensions for the canvis the graph will be on
   var svgWidth = 1000, svgHeight = 450;
-  var margin = { top: 20, right: 140, bottom: 80, left: 60 };
+  var margin = { top: 20, right: 180, bottom: 80, left: 60 };
   var width = svgWidth - margin.left - margin.right;
   var height = svgHeight - margin.top - margin.bottom;
 
   //set declarations for future use
   var bisectDate = d3.bisector(d => d.date).right;
-  const lineAnimationTime = 3000;
+  const lineAnimationTime = 2000;
+  const areaFadeTime = 1000;
   const openColor = "gray";
   const closeColor = "blue";
   const highColor = "green";
@@ -87,7 +88,8 @@ function drawStockChart(data) {
 
   var svg = d3.select('svg.stock_chart')
     .attr("width", svgWidth)
-    .attr("height", svgHeight);
+    .attr("height", svgHeight)
+    .attr("transform", "translate("+((margin.right-margin.left)/2)+","+"0)");
 
   // move the drawing area over by margin to make room for the axis
   var g = svg.append("g")
@@ -348,7 +350,6 @@ feMerge.append("feMergeNode")
   animateLines();
 
 
-
   function createStockLines(lineName, d3Line, d3Area, lineColor){
   //create line
   g.append("path")
@@ -369,7 +370,7 @@ feMerge.append("feMergeNode")
     .attr("d", d3Area)
     .style("fill",function(d) {
       //set the gradient fill
-      gradient(lineColor,lineName+'Gradient',"100%","0%","10%","100%",0,0.7)
+      gradient(lineColor,lineName+'Gradient',"100%","0%","10%","100%",0,0)
       return "url(#"+lineName+"Gradient)";
     });
 
@@ -385,7 +386,8 @@ feMerge.append("feMergeNode")
           .transition()
             .duration(lineAnimationTime)
             .ease(d3.easeLinear)
-            .attr("stroke-dashoffset", 0);
+            .attr("stroke-dashoffset", 0)
+            .on("end", function() {fadeAreaUnderLine()});
       });
   }
 
@@ -413,6 +415,19 @@ feMerge.append("feMergeNode")
     svg.selectAll(".area_under_line")
       .style("display", null);
     crossHairs.style('display', "none");
+  }
+
+  function fadeAreaUnderLine(){
+      d3.selectAll("linearGradient")
+        .each(function(){
+          d3.select(this)
+            .transition()
+              .duration(areaFadeTime)
+              .ease(d3.easeLinear)
+              .select("stop:last-child")
+              .style("stop-opacity",0.7);
+        });
+    
   }
 
   function gradient(colour,id,y1,y2,off1,off2,op1,op2){
