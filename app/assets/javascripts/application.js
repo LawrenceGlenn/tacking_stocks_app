@@ -16,3 +16,16 @@
 //= require turbolinks
 //= require_tree ./channels
 //= require_tree .
+
+@App ||= {}
+App.cable = ActionCable.createConsumer()
+
+App.ochl = App.cable.subscriptions.create "OchlChannel",
+  connected: ->
+
+
+  disconnected: ->
+
+  received: (data) ->
+
+  $('#some component').append data['name of data from API']
