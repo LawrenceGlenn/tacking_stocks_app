@@ -1,6 +1,6 @@
 class StockController < ApplicationController
   def index
-    @stocks = Stock.new
+    @stocks = Stock.new("NDAQ")
   end
 
   def show

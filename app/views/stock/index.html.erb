@@ -2,13 +2,17 @@
 <%= content_tag :div, class: "stock_info", data: {stock: @stocks} do %>
 <% end %>
 
-<%= @stocks.chart.first.date.to_s + " " + @stocks.chart.first.label.chomp(" PM").chomp(" AM") %>
-
 
 <body>
-  <div class="stock_chart_title">
-    Stock Chart
+  <div class = stock_chart_container>
+    <div class="stock_chart_title">
+      NASDAQ <%=@stocks.chart.first.label.chomp(" PM").chomp(" AM") %>
+    </div>
+    <div>
+      Latest <%= @stocks.name%> Headlines
+    </div>
+    <svg class = "scrolling_headlines"></svg>
+    <svg class="stock_chart"></svg>
+    <%= render 'form', stock: @stock %>
   </div>
-  <svg class="stock_chart"></svg>
-  <%= render 'form', stock: @stock %>
-  </body>
+</body>
